@@ -22,6 +22,11 @@ namespace SharkAttackClassLibrary.DataAccess
             using (SqlConnection conn = new SqlConnection(_connectionString))
             {
                 conn.Open();
+
+                SqlCommand cmd = new SqlCommand("IF EXISTS (SELECT * FROM sysobjects WHERE name='SharkAttacks' AND xtype='U') " +
+                    "Drop table SharkAttacks", conn);
+                cmd.ExecuteNonQuery();
+
                 string query = @"IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='SharkAttacks' AND xtype='U')
                 CREATE TABLE SharkAttacks (
                     Id INT IDENTITY PRIMARY KEY,
@@ -40,7 +45,7 @@ namespace SharkAttackClassLibrary.DataAccess
                     Time VARCHAR(50),
                     Species VARCHAR(500)
                 )";
-                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd = new SqlCommand(query, conn);
                 cmd.ExecuteNonQuery();
             }
         }
@@ -80,12 +85,18 @@ namespace SharkAttackClassLibrary.DataAccess
                             {
                                 dateString = dateString.Trim().Substring(0, dateString.Trim().Length - 1);
                             }
-                            dateString = dateString.Replace("Fall", "Sep");
-                            dateString = dateString.Replace("Summer", "Jun");
-                            dateString = dateString.Replace("Winter", "Dec");
-                            dateString = dateString.Replace("Between", "");
-                            dateString = dateString.Replace("Before", "");
-                            dateString = dateString.Replace(" ", "");
+                            
+                            string[,] replaceables =
+                            {
+                                { "Fall", "Sep" }, { "Summer", "Jun" },
+                                { "Winter", "Dec" }, { "Between", "" },
+                                { "Before", "" }, { " ", "" } 
+                            };
+
+                            for(int i = 0; i<replaceables.GetLength(0); i++)
+                            {
+                                dateString = dateString.Replace(replaceables[i, 0], replaceables[i, 1]);
+                            }
 
                             if (dateString[dateString.Length - 1] == '.')
                             {
@@ -105,35 +116,78 @@ namespace SharkAttackClassLibrary.DataAccess
                             {
                                 dateString = "01-Jan-" + dateString.Trim();
                             }
-                            dateString = dateString.Replace("Ap-", "Apr-");
-                            dateString = dateString.Replace("Early", "");
-                            dateString = dateString.Replace("Late", "");
-                            dateString = dateString.Replace("Mid", "");
-                            dateString = dateString.Replace("Ca.", "");
-                            dateString = dateString.Replace("No date, Before", "");
 
-                            dateString = dateString.Replace("of", "");
+                            replaceables = new string[,]{
+                                { "Ap-", "Apr-" },
+                                { "Early", ""},
+                                { "Late", ""},
+                                { "Mid", ""},
+                                { "Ca.", ""},
+                                { "No date, Before", ""},
+                                { "of" , "" }
+                            };
+
+                            for (int i = 0; i < replaceables.GetLength(0); i++)
+                            {
+                                dateString = dateString.Replace(replaceables[i, 0], replaceables[i, 1]);
+                            }
 
                             if (dateString.Length > 11)
                             {
                                 dateString = dateString.Substring(0, 11);
                             }
 
+                            string ageString = line[9];
+                            ageString = ageString.Replace("s", "");
+                            if (ageString.Split("&").Length > 1)
+                            {
+                                ageString = ageString.Split("&")[0];
+                            }else if (ageString.Split("or").Length > 1)
+                            {
+                                ageString = ageString.Split("or")[0];
+                            }
+                            else if (ageString.Split("to").Length > 1)
+                            {
+                                ageString = ageString.Split("to")[0];
+                            }
+                            else if (ageString.Equals("young"))
+                            {
+                                ageString = "15";
+                            }else if (ageString.Equals("M"))
+                            {
+                                ageString = "";
+                            }
+                            ageString = ageString.Replace("\"", "");
+                            ageString = ageString.Replace("\'", "");
+                            ageString = ageString.Replace("?", "");
+                            ageString = ageString.Replace("!", "");
+                            ageString = ageString.Replace("mid-", "");
+                            ageString = ageString.Replace("s", "");
+                            ageString = ageString.Replace("Ca.", "");
+                            ageString = ageString.Replace(" ", "");
+                            ageString = ageString.Replace("Teen", "15");
+                            ageString = ageString.Replace("teen", "15");
+                            ageString = ageString.Replace("adult", "30");
+                            ageString = ageString.Replace("Adult", "30");
+                            ageString = ageString.Replace("a minor", "10");
+
+
+
                             DateTime time = DateTime.Parse(dateString);
                             cmd.Parameters.AddWithValue("@Date", time);
                             cmd.Parameters.AddWithValue("@Year", line[1].Length < 1 ? time.Year : int.Parse(line[1]));
-                            cmd.Parameters.AddWithValue("@Type", line[2]);
-                            cmd.Parameters.AddWithValue("@Country", line[3]);
-                            cmd.Parameters.AddWithValue("@Area", line[4]);
-                            cmd.Parameters.AddWithValue("@Location", line[5]);
-                            cmd.Parameters.AddWithValue("@Activity", line[6]);
-                            cmd.Parameters.AddWithValue("@Name", line[7]);
+                            cmd.Parameters.AddWithValue("@Type", line[2].Trim());
+                            cmd.Parameters.AddWithValue("@Country", line[3].Trim());
+                            cmd.Parameters.AddWithValue("@Area", line[4].Trim());
+                            cmd.Parameters.AddWithValue("@Location", line[5].Trim());
+                            cmd.Parameters.AddWithValue("@Activity", line[6].Trim());
+                            cmd.Parameters.AddWithValue("@Name", line[7].Trim());
                             cmd.Parameters.AddWithValue("@Sex", line[8].Length > 1 ? line[8][0] : "?");
-                            cmd.Parameters.AddWithValue("@Age", line[9]);
-                            cmd.Parameters.AddWithValue("@Injury", line[10]);
+                            cmd.Parameters.AddWithValue("@Age", ageString);
+                            cmd.Parameters.AddWithValue("@Injury", line[10].Trim());
                             cmd.Parameters.AddWithValue("@Fatal", line[11].Length > 1 ? line[11][0] : "?");
-                            cmd.Parameters.AddWithValue("@Time", line[12]);
-                            cmd.Parameters.AddWithValue("@Species", line[13]);
+                            cmd.Parameters.AddWithValue("@Time", line[12].Trim());
+                            cmd.Parameters.AddWithValue("@Species", line[13].Trim());
                             cmd.ExecuteNonQuery();
                         }
                         catch (Exception ex) 
