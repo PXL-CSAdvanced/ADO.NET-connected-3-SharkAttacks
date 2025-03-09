@@ -12,8 +12,8 @@ Gebruik het onderstaande script om de table aan te maken in je eigen database:
 Voer het script uit voor je begint aan de opgave!
 
 ### SQL Shark Attack CREATE script
-<details>
 Je vindt dit script ook terug in je bestanden.
+<details>
 
 ```
 
