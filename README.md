@@ -55,9 +55,9 @@ Maak de methode `GetAttacksByActivity()` die een `Dictionary<string, int>` retou
 In deze opgave ga je de brug maken van database naar C# objecten. Het doel is om een overzicht te laden voor een specifiek land dat de gebruiker mag kiezen. Hiervoor ga je de rijen uit de database omzetten naar SharkAttack objecten.
 
 1. Maak een class `SharkAttack` die overeenkomt met de onderstaande class diagram. 
-	a. Voorzie de properties uit de diagram.
-	b. Voorzie een constructor die een parameter ontvangt voor elke property.
-	c. Voorzie een `ToString()` methode die een stuk tekst retourneert gelijkaardig aan de output op de laatste afbeelding.
+	* Voorzie de properties uit de diagram.
+	* Voorzie een constructor die een parameter ontvangt voor elke property.
+	* Voorzie een `ToString()` methode die een stuk tekst retourneert gelijkaardig aan de output op de laatste afbeelding.
 
 <img src="images/6.png" width="450px"/>
 
@@ -66,9 +66,10 @@ In deze opgave ga je de brug maken van database naar C# objecten. Het doel is om
 <img src="images/4.png" width="450px"/>
 
 3. Maak een methode `GetAllAttacksByCountryName(string country)` die een `List<SharkAttack>` retourneert.
-	a. Gebruik een `SqlDataAdapter` om elke rij uit te lezen en om te zetten in een `SharkAttack` object.
-	b. Filter de aanvallen op het gegeven land.
-	c. Sorteer de incidenten van het resultaat van nieuw naar oud.
+	* Gebruik een `SqlDataAdapter` om elke rij uit te lezen en om te zetten in een `SharkAttack` object.
+	* Filter de aanvallen op het gegeven land.
+	* Sorteer de incidenten van het resultaat van nieuw naar oud.
+	* Maak gebruik van een `SqlParameter` om het gegeven land door te geven aan de query.
 
 <img src="images/5.png"/>
 
