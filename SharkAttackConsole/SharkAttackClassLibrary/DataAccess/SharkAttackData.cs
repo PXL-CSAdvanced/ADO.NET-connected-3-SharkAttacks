@@ -12,26 +12,18 @@ namespace SharkAttackClassLibrary.DataAccess
     public static class SharkAttackData
     {
         private static string _connectionString = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=SharkAttacks;Integrated Security=True;Connect Timeout=30;";
-        
-        
-        public static List<AttacksByYear> GetAttacksByYear()
+
+        #region 1.OverallStats
+        public static int GetTotalAttakcs()
         {
-            List<AttacksByYear> attacksByYear = new ();
             using (SqlConnection conn = new SqlConnection(_connectionString))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand("SELECT Year, COUNT(*) FROM SharkAttacks GROUP BY Year ORDER BY Year", conn);
-                SqlDataReader reader = cmd.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    int year = reader.GetInt32(0);
-                    int count = reader.GetInt32(1);
-                    attacksByYear.Add(new AttacksByYear(year, count));
-                }
-                reader.Close();
+                SqlCommand cmd = new SqlCommand("SELECT COUNT(*) FROM SharkAttacks");
+                cmd.Connection = conn;
+                int totalCount = (int)cmd.ExecuteScalar();
+                return totalCount;
             }
-            return attacksByYear;
         }
 
         public static double GetFatalityRate()
@@ -47,10 +39,42 @@ namespace SharkAttackClassLibrary.DataAccess
                 return fatalRate;
             }
         }
-        
-        public static List<AttacksByActivity> GetAttacksByActivity()
+        #endregion
+
+        #region 2.YearlySharkAttacks
+        /// <summary>
+        /// GetAttacksByYear geeft een Dictionary terug met key-value pair van jaar-hoevelheid
+        /// </summary>
+        /// <returns>Alle jaartallen met de hoeveelheid aanvallen per jaar</returns>
+        public static Dictionary<int, int> GetAttacksByYear()
         {
-            List<AttacksByActivity> attacksByActivities = new ();
+            Dictionary<int, int> attacksByYear = new ();
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+                SqlCommand cmd = new SqlCommand("SELECT Year, COUNT(*) FROM SharkAttacks GROUP BY Year ORDER BY Year", conn);
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    int year = reader.GetInt32(0);
+                    int count = reader.GetInt32(1);
+                    attacksByYear.Add(year, count);
+                }
+                reader.Close();
+            }
+            return attacksByYear;
+        }
+        #endregion
+
+        #region DangerousActivities
+        /// <summary>
+        /// GetAttacksByActivity geeft een Dictionary terug met key-value pair van activiteit-hoeveelheid
+        /// </summary>
+        /// <returns>Alle activiteiten met de hoeveelheid gerelateerde aanvallen</returns>
+        public static Dictionary<string, int> GetAttacksByActivity()
+        {
+            Dictionary<string, int> attacksByActivities = new ();
             using (SqlConnection conn = new SqlConnection(_connectionString))
             {
                 conn.Open();
@@ -61,25 +85,15 @@ namespace SharkAttackClassLibrary.DataAccess
                 {
                     string activity = reader.GetString(0);
                     int count = reader.GetInt32(1);
-                    attacksByActivities.Add(new AttacksByActivity(activity, count));
+                    attacksByActivities.Add(activity, count);
                 }
                 reader.Close();
             }
             return attacksByActivities;
         }
+        #endregion
 
-        public static int GetTotalAttakcs()
-        {
-            using (SqlConnection conn = new SqlConnection(_connectionString))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand("SELECT COUNT(*) FROM SharkAttacks");
-                cmd.Connection = conn;
-                int totalCount = (int)cmd.ExecuteScalar();
-                return totalCount;
-            }
-        }
-
+        #region AttacksByCountry
         public static List<string> GetAllCountries()
         {
             List<string> countries = new List<string>();
@@ -143,5 +157,6 @@ namespace SharkAttackClassLibrary.DataAccess
             }
             return sharkAttacks;
         }
+        #endregion
     }
 }

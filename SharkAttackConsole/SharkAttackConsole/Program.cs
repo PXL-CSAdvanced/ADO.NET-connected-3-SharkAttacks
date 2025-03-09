@@ -45,14 +45,13 @@ public class Program
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.WriteLine("\nYearly Shark Attacks");
                     Console.ResetColor();
-                    List<AttacksByYear> attacksByYear = new ();
+                    Dictionary<int, int> attacksByYear = new ();
                     
                     attacksByYear = SharkAttackData.GetAttacksByYear();
                     
-                    foreach (AttacksByYear attackAndYear in attacksByYear)
+                    foreach (int year in attacksByYear.Keys)
                     {
-                        int year = attackAndYear.Year;
-                        int count = attackAndYear.NumberOfAttacks;
+                        int count = attacksByYear[year];
                         Console.ForegroundColor = ConsoleColor.White;
                         Console.Write($"{year}: ");
                         Console.ForegroundColor = ConsoleColor.Red;
@@ -66,14 +65,13 @@ public class Program
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.WriteLine("\nDangerous Activities");
                     Console.ResetColor();
-                    List<AttacksByActivity> attacksByActivities = new();
+                    Dictionary<string, int> attacksByActivities = new();
                     
                     attacksByActivities = SharkAttackData.GetAttacksByActivity();
                     
-                    foreach (AttacksByActivity attackByActivity in attacksByActivities)
+                    foreach (string activity in attacksByActivities.Keys)
                     {
-                        string activity = attackByActivity.Activity;
-                        int count = attackByActivity.NumberOfAttacks;
+                        int count = attacksByActivities[activity];
                         if(count >= 10)
                         {
                             Console.ForegroundColor = ConsoleColor.White;
@@ -137,13 +135,14 @@ public class Program
                     Console.WriteLine("\nMost attacked body parts");
                     Console.ResetColor();
 
-                    Console.WriteLine("Try it yourself.");
-
+                    Console.WriteLine("Try writing this menu yourself.");
+                    // TODO:    Schrijf nu zelf dit console menu. Let op, er is nog geen SharkData methode placeholder voorzien.
+                    //          Je zal zelf de data moeten filteren. Ontdek de Injury kolom en bekijk hoe "messy" de data is.
                     break;
                     #endregion
                 case 6:
                     Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine("\nExiting... Stay safe in the water!");
+                    Console.WriteLine("\nExiting... Stay safe in the water!    ><(((°>");
                     Console.ResetColor();
                     return;
                 default:
